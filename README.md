@@ -1,3 +1,23 @@
+<h1 align="center">
+   مصحف عماد <br />
+  MushafImad
+</h1>
+
+<p align="center">
+  <a href="https://swiftpackageindex.com/ibo2001/MushafImad">
+    <img alt="Swift Package Index" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fibo2001%2FMushafImad%2Fbadge%3Ftype%3Dswift-versions">
+  </a>
+  <a href="https://swiftpackageindex.com/ibo2001/MushafImad">
+    <img alt="Supported Platforms" src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fibo2001%2FMushafImad%2Fbadge%3Ftype%3Dplatforms">
+  </a>
+  <img alt="SwiftPM Compatible" src="https://img.shields.io/badge/SwiftPM-compatible-brightgreen?logo=swift">
+  <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-black">
+  <a href="https://github.com/ibo2001/MushafImad/actions">
+    <img alt="CI Status" src="https://img.shields.io/github/actions/workflow/status/ibo2001/MushafImad/swift.yml?label=CI&logo=github">
+  </a>
+</p>
+
+
 # MushafImad
 
 A Swift Package that delivers a fully featured Mushaf (Quran) reading experience for iOS 17 and later. The package ships page images, verse metadata, timing information, audio helpers, and polished SwiftUI components so apps can embed a complete Quran reader with audio playback, toast feedback, and contextual navigation.
