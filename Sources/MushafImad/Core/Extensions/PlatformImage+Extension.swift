@@ -15,8 +15,7 @@ extension UIImage: @unchecked Sendable {}
 import AppKit
 public typealias UIImage = NSImage
 
-// NSImage is safe to send across concurrency boundaries as it's immutable
-extension NSImage: @unchecked Sendable {}
+// Note: NSImage already conforms to Sendable in macOS 14.0+
 
 public extension NSImage {
     func pngData() -> Data? {

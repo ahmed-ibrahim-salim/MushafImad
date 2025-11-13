@@ -79,7 +79,7 @@ A Swift Package that delivers a fully featured Mushaf (Quran) reading experience
 1. **Add the dependency**
 
    ```swift
-   .package(url: "https://github.com/ibo2001/MushafImad", from: "1.0.1")
+   .package(url: "https://github.com/ibo2001/MushafImad", from: "1.0.3")
    ```
 
    Then add `MushafImad` to your target dependencies.
@@ -139,6 +139,37 @@ struct ReaderContainer: View {
     }
 }
 ```
+
+### Advanced: Custom Page Layouts
+
+As of version 1.0.3, `MushafView` exposes its internal page layout functions as public APIs, allowing you to build custom reading experiences while reusing the package's page rendering logic:
+
+- **`horizontalPageView(currentHighlight:)`** – Returns a horizontal `TabView`-based paging layout (iOS-style page flipping).
+- **`verticalPageView(currentHighlight:)`** – Returns a vertical scrolling layout with snap-to-page behavior.
+- **`pageContent(for:highlight:)`** – Returns the content view for a single page, including verse interaction handlers.
+
+These functions give you full control over how pages are presented. For example, you can embed them in custom navigation structures, add overlays, or implement alternative scrolling behaviors:
+
+```swift
+struct CustomMushafLayout: View {
+    @State private var mushafView = MushafView(initialPage: 1)
+    @State private var showOverlay = false
+    
+    var body: some View {
+        ZStack {
+            // Use the built-in horizontal page view
+            mushafView.horizontalPageView(currentHighlight: nil)
+            
+            // Add your custom overlay
+            if showOverlay {
+                CustomControlsOverlay()
+            }
+        }
+    }
+}
+```
+
+You can also mix and match layouts or switch between them dynamically based on device orientation or user preferences.
 
 ### Customizing Assets
 

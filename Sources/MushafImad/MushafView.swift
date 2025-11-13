@@ -180,7 +180,7 @@ public struct MushafView: View {
         .environment(\.layoutDirection, .rightToLeft)
     }
     
-    private func horizontalPageView(currentHighlight: Verse?) -> some View {
+    public func horizontalPageView(currentHighlight: Verse?) -> some View {
         TabView(selection: $viewModel.scrollPosition) {
             ForEach(1...604, id: \.self) { pageNumber in
                 pageContent(for: pageNumber, highlight: currentHighlight)
@@ -193,7 +193,7 @@ public struct MushafView: View {
         #endif
     }
     
-    private func verticalPageView(currentHighlight: Verse?) -> some View {
+    public func verticalPageView(currentHighlight: Verse?) -> some View {
         GeometryReader { geometry in
             let scrollBinding = Binding(
                 get: { viewModel.scrollPosition },
@@ -221,7 +221,7 @@ public struct MushafView: View {
         }
     }
     
-    private func pageContent(for pageNumber: Int, highlight: Verse?) -> some View {
+    public func pageContent(for pageNumber: Int, highlight: Verse?) -> some View {
         PageContainer(
             pageNumber: pageNumber,
             highlightedVerse: highlight,
