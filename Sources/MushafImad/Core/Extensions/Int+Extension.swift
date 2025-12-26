@@ -152,4 +152,14 @@ extension Int {
             return String(char)
         }.joined()
     }
+    
+    var toArabic:String {
+        let arabicDigits = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"]
+        return String(self).map { char in
+            if let digit = char.wholeNumberValue {
+                return arabicDigits[digit]
+            }
+            return String(char)
+        }.joined()
+    }
 }

@@ -37,18 +37,19 @@ public struct PageFooterView: View {
     
     private var baseHeight: CGFloat { 26 * deviceScaleFactor }
     
-    private var baseFont: CGFloat { 16 * deviceScaleFactor }
+    private var baseFont: CGFloat { 32 * deviceScaleFactor }
     
     private var basePadding: CGFloat { 16 * deviceScaleFactor }
     private var footerContent: some View {
         MushafAssets.image(named: "pagenumb")
             .resizable()
-            .frame(width:baseWidth,height: baseHeight)
+            .frame(width: baseWidth, height: baseHeight)
             .overlay {
-                Text("\(pageNumber)")
-                    .font(.alQuranAlKareem(size: baseFont))
-                    .frame(maxWidth:.infinity)
+                Text(pageNumber.toArabic)
+                    .font(.uthmanicTN1Bold(size: baseFont))
+                    .frame(maxWidth: .infinity)
                     .minimumScaleFactor(0.2)
+                    .offset(y:-2)
             }
     }
     
@@ -66,4 +67,8 @@ public struct PageFooterView: View {
         .frame(maxWidth: .infinity)
         .animation(.easeInOut(duration: 0.3), value: isRight)
     }
+}
+
+#Preview {
+    PageFooterView(pageNumber: 604, isRight: true)
 }
