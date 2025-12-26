@@ -12,7 +12,7 @@ import UIKit
 import AppKit
 #endif
 
-/// Displays a single Quran line image loaded from disk, downloading on demand.
+/// Displays a single Quran line image loaded directly from the bundle.
 public struct QuranLineImageView: View {
     public let page: Int
     public let line: Int
@@ -27,8 +27,6 @@ public struct QuranLineImageView: View {
     #elseif canImport(AppKit)
     @State private var nsImage: NSImage? = nil
     #endif
-
-    @StateObject private var providerRef = QuranImageProvider.shared
 
     public init(
         page: Int,
@@ -72,40 +70,32 @@ public struct QuranLineImageView: View {
             }
             #endif
         }
-        .task(id: "\(page)-\(line)") {
-            await load()
+        .onAppear {
+            loadImage()
         }
     }
     
     private var placeholder: some View {
-        // Minimal placeholder - images should already be prefetched
         Rectangle()
             .fill(.secondary.opacity(0.05))
             .frame(width: containerWidth, height: scaledImageHeight)
             .allowsHitTesting(false)
     }
 
-    @MainActor
-    private func load() async {
-        // Try to get from cache first (should hit most of the time due to prefetching)
-        if let img = await providerRef.image(page: page, line: line) {
-            #if canImport(UIKit)
-            uiImage = img
-            #elseif canImport(AppKit)
-            nsImage = img
-            #endif
+    /// Load image directly from bundle - fast and simple
+    private func loadImage() {
+        guard let url = Bundle.module.url(
+            forResource: "\(line)",
+            withExtension: "png",
+            subdirectory: "quran-images/\(page)"
+        ) else {
             return
         }
-        // If not cached, ensure it's available and try again
-        await providerRef.ensureAvailable(page: page, line: line)
-        if let img = await providerRef.image(page: page, line: line) {
-            #if canImport(UIKit)
-            uiImage = img
-            #elseif canImport(AppKit)
-            nsImage = img
-            #endif
-        }
+        
+        #if canImport(UIKit)
+        uiImage = UIImage(contentsOfFile: url.path)
+        #elseif canImport(AppKit)
+        nsImage = NSImage(contentsOf: url)
+        #endif
     }
 }
-
-

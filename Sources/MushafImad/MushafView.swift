@@ -121,18 +121,10 @@ public struct MushafView: View {
             
             Task {
                 await viewModel.handlePageChange(from: oldPage, to: newPage)
-                
-                // Check if page is downloaded (non-blocking)
-                await checkPageDownloaded(newPage)
             }
         }
         .task {
             await viewModel.initializePageView(initialPage: initialPage)
-            
-            // Check if initial page is downloaded (non-blocking)
-            if let page = initialPage ?? viewModel.scrollPosition {
-                await checkPageDownloaded(page)
-            }
         }
         .onChange(of: playerViewModel.playbackState) { oldState, newState in
             // Clear highlighting when playback stops
@@ -243,28 +235,6 @@ public struct MushafView: View {
                 }
             }
         )
-    }
-    
-    // MARK: - Page Download Check
-    
-    private func checkPageDownloaded(_ page: Int) async {
-        // Check if page is fully downloaded (all lines)
-        let fileStore = QuranImageFileStore.shared
-        let linesPerPage = 15
-        
-        var missingLines: [Int] = []
-        
-        // Check all lines to ensure page is complete
-        for line in 1...linesPerPage {
-            let exists = await fileStore.exists(page: page, line: line)
-            if !exists {
-                missingLines.append(line)
-            }
-        }
-        
-        if !missingLines.isEmpty {
-            AppLogger.shared.error("Missing the line")
-        }
     }
 }
 

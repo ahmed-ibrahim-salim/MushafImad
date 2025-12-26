@@ -42,7 +42,6 @@ extension MushafView {
         // Services
         private let realmService = RealmService.shared
         private let dataCache = QuranDataCacheService.shared
-        private let imageProvider = QuranImageProvider.shared
         
         public var showReadingSetting:Bool = false
         public var showReadingSettingsSheet:Bool = false
@@ -107,8 +106,7 @@ extension MushafView {
         }
         
         @MainActor
-        /// Prime the Mushaf view with an initial page and start prefetching
-        /// surrounding images so first interaction feels instant.
+        /// Prime the Mushaf view with an initial page.
         public func initializePageView(initialPage: Int?) async {
             await loadData()
             
@@ -119,10 +117,7 @@ extension MushafView {
             // Set initial scroll position
             scrollPosition = currentPage
             
-            // Start prefetching immediately (non-blocking)
-            imageProvider.prefetchWithNeighbors(currentPage: currentPage)
-            
-            // Show UI immediately - don't wait for images to load
+            // Show UI immediately - images load directly from bundle
             isInitialPageReady = true
         }
         
@@ -177,23 +172,18 @@ extension MushafView {
         // MARK: - Navigation Logic
         
         @MainActor
-        /// Update caches and prefetching when the user scrolls to a new page.
+        /// Update caches when the user scrolls to a new page.
         public func handlePageChange(from oldPage: Int?, to newPage: Int) async {
             guard oldPage != nil else {
                 // First page load
                 currentPage = newPage
                 updateCurrentChapter(for: newPage)
-                imageProvider.prefetchWithNeighbors(currentPage: newPage)
                 return
             }
             
-            // Find current and target Chapters
-            // Navigation is always allowed since full Mushaf is downloaded
+            // Update current page and chapter
             currentPage = newPage
             updateCurrentChapter(for: newPage)
-            
-            // Aggressively prefetch current and adjacent pages
-            imageProvider.prefetchWithNeighbors(currentPage: newPage)
         }
         
         // MARK: - Chapter Navigation Helpers

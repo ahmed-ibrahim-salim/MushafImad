@@ -47,7 +47,7 @@ A Swift Package that delivers a fully featured Mushaf (Quran) reading experience
   - `Extensions` – Convenience helpers for colors, fonts, numbers, bundle access, and RTL-friendly UI utilities.
 - `Sources/Services` – UI-facing services specific to the Mushaf reader:
   - `MushafView+ViewModel` orchestrates page state, caching, and navigation.
-  - `QuranImageProvider`, `QuranImageDownloadManager`, and `QuranImageFileStore` manage disk/memory caching for line images.
+  - `QuranImageProvider` loads line images from the bundle with memory caching.
 - `Sources/AudioPlayer`
   - `ViewModels/QuranPlayerViewModel` bridges `AVPlayer` with verse timing for audio playback.
   - `Services/AyahTimingService` loads JSON timing data; `ReciterService` and `ReciterDataProvider` expose available reciters; `ReciterPickerView` renders selection UI.
@@ -69,7 +69,7 @@ A Swift Package that delivers a fully featured Mushaf (Quran) reading experience
 2. **Rendering pages**
    - `MushafView` instantiates `ViewModel`, which pulls chapter metadata from `ChaptersDataCache` and prefetches page data.
    - `PageContainer` loads `Page` objects lazily via `RealmService.fetchPageAsync(number:)` and hands them to `QuranPageView`.
-   - `QuranImageProvider` streams line images, ensuring disk and memory caches stay warm around the current page.
+   - `QuranImageProvider` loads line images directly from the bundle with memory caching for fast re-access.
 3. **Audio playback**
    - `ReciterService` exposes reciter metadata, persisting selections via `@AppStorage`.
    - `QuranPlayerViewModel` configures `AVPlayer` with the selected reciter’s base URL and uses `AyahTimingService` to highlight verses in sync with playback.
@@ -211,32 +211,11 @@ MushafAssets.configuration = MushafAssetConfiguration(
 
 Call `MushafAssets.reset()` to restore the defaults (useful inside tests or sample views).
 
-### Remote Content Settings
-
-Line images are downloaded from the default CDN (`https://mushaf-imad.qraiqe.no/files/data/quran-images`). You can point the package at your own mirror and optionally force a full pre-download:
-
-```swift
-import MushafImad
-
-@MainActor
-func configureMushaf() async {
-    if let customURL = URL(string: "https://cdn.example.com/mushaf") {
-        await QuranImageProvider.shared.updateImageBaseURL(customURL)
-    }
-
-    try await QuranImageProvider.shared.preloadEntireMushaf { completed, total in
-        print("Downloaded \(completed) / \(total)")
-    }
-}
-```
-
-Call `await QuranImageProvider.shared.resetImageBaseURLToDefault()` to return to the packaged CDN.
-
 ## Example Project
 
 The `Example` directory contains a minimal SwiftUI app that imports the package and displays `MushafView`. Open `Example/Example.xcodeproj` to experiment with the reader, swap reciters, or tweak theming.
 
-> **⚠️ Important:** The Example app requires network permissions to download images and audio. See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for setup instructions if you encounter network errors.
+> **Note:** The Example app requires network permissions for audio streaming. Images are bundled with the package and load instantly.
 
 Demos include:
 
@@ -244,7 +223,6 @@ Demos include:
 - **Suras List** – Browse every chapter, jump to its first page, and use `onPageTap` to toggle the navigation chrome.
 - **Verse by Verse** – Long-press any ayah to open the audio sheet, highlight it in the Mushaf, and play from that verse while the highlight follows live playback.
 - **Audio Player UI** – Explore the rich `QuranPlayer` controls, reciter switching, and chapter navigation.
-- **Download Management** – Point the image provider at a custom CDN and prefetch the full Mushaf for offline use.
 
 ## Platform-Specific Features
 
