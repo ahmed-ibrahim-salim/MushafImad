@@ -18,7 +18,7 @@ struct VerseFasel: View {
         let baseFontSize: CGFloat = 14 * balance
         let basePadding: CGFloat = 2 * balance
         let fs = baseFontSize  * scale
-        Image(.fasel)
+        MushafAssets.image(named: "fasel")
             .resizable()
             .frame(width: baseWidth * scale, height: baseHeight * scale,alignment: .center)
             .overlay {
