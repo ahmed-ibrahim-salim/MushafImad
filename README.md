@@ -79,7 +79,7 @@ A Swift Package that delivers a fully featured Mushaf (Quran) reading experience
 1. **Add the dependency**
 
    ```swift
-   .package(url: "https://github.com/ibo2001/MushafImad", from: "1.0.3")
+   .package(url: "https://github.com/ibo2001/MushafImad", from: "1.0.4")
    ```
 
    Then add `MushafImad` to your target dependencies.
