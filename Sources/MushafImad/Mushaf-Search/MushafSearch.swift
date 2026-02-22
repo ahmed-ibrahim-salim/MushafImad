@@ -27,7 +27,7 @@ class MushafSearchViewModel: ObservableObject {
     func searchChaptersAndVerses() {
         guard !query.isEmpty else { return }
         searchTask?.cancel()
-        
+
         searchTask = Task { [weak self] in
             guard let self = self else { return }
             guard !Task.isCancelled else { return }
@@ -37,24 +37,18 @@ class MushafSearchViewModel: ObservableObject {
             } catch {
                 return // task cancelled
             }
-            
+
             guard !Task.isCancelled else { return }
 
             viewState = .loading
-            do {
-                let chapters = service.searchChapters(query: query)
-                let verses = service.searchVerses(query: query)
-                var rows: [SearchRow] = []
-                rows.append(contentsOf: chapters.map { SearchRow(chapter: $0, verse: nil) })
-                rows.append(contentsOf: verses.map { SearchRow(chapter: nil, verse: $0) })
-                
-                // Note: Prioritize chapters over verses as chapters count will always be less than verses results.
-                viewState = .data(rows)
-            } catch is CancellationError {
-                return // task cancelled
-            } catch {
-                viewState = .error(error.localizedDescription)
-            }
+            let chapters = service.searchChapters(query: query)
+            let verses = service.searchVerses(query: query)
+            var rows: [SearchRow] = []
+            rows.append(contentsOf: chapters.map { SearchRow(chapter: $0, verse: nil) })
+            rows.append(contentsOf: verses.map { SearchRow(chapter: nil, verse: $0) })
+
+            // Note: Prioritize chapters over verses as chapters count will always be less than verses results.
+            viewState = .data(rows)
         }
     }
 }
@@ -65,35 +59,33 @@ public struct MushafSearch: View {
     public init() {}
 
     public var body: some View {
-        NavigationView {
-            VStack {
-                switch viewModel.viewState {
-                case .idle:
-                    Text("Start typing to search chapters and verses")
-                case .data(let rows):
-                    if rows.isEmpty {
-                        Text("No results found for \"\(viewModel.query)\"")
-                    } else {
-                        List(rows, id: \.id) { row in
-                            if let chapter = row.chapter {
-                                ChapterResultRow(chapter: chapter)
-                            } else if let verse = row.verse {
-                                VerseResultRow(verse: verse)
-                            } else {
-                                EmptyView()
-                            }
+        VStack {
+            switch viewModel.viewState {
+            case .idle:
+                Text("Start typing to search chapters and verses")
+            case .data(let rows):
+                if rows.isEmpty {
+                    Text("No results found for \"\(viewModel.query)\"")
+                } else {
+                    List(rows, id: \.id) { row in
+                        if let chapter = row.chapter {
+                            ChapterResultRow(chapter: chapter)
+                        } else if let verse = row.verse {
+                            VerseResultRow(verse: verse)
+                        } else {
+                            EmptyView()
                         }
                     }
-                case .loading:
-                    ProgressView()
-                case .error(let message):
-                    Text("Error: \(message)")
                 }
+            case .loading:
+                ProgressView()
+            case .error(let message):
+                Text("Error: \(message)")
             }
-            .searchable(text: $viewModel.query, prompt: "Search Al-Baqarah, Al-Hamdu...")
-            .task(id: viewModel.query) {
-                viewModel.searchChaptersAndVerses()
-            }
+        }
+        .searchable(text: $viewModel.query, prompt: "Search Al-Baqarah, Al-Hamdu...")
+        .task(id: viewModel.query) {
+            viewModel.searchChaptersAndVerses()
         }
     }
 }
@@ -144,7 +136,7 @@ struct ChapterResultRow: View {
             .toolbar(navbarHidden ? .hidden : .visible, for: .navigationBar)
         } label: {
             HStack {
-                Text(chapter.title)
+                Text(chapter.displayTitle)
                     .font(.body)
                 Spacer()
                 Text("Chapter")
