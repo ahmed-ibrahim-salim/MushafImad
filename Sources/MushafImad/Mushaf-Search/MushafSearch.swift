@@ -25,8 +25,15 @@ class MushafSearchViewModel: ObservableObject {
     }
 
     func searchChaptersAndVerses() {
-        guard !query.isEmpty else { return }
+        guard !query.isEmpty else {
+            searchTask?.cancel()
+            searchTask = nil
+            viewState = .idle
+            return
+        }
+        
         searchTask?.cancel()
+        searchTask = nil
 
         searchTask = Task { [weak self] in
             guard let self = self else { return }
