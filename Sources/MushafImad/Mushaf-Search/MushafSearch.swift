@@ -110,7 +110,9 @@ struct VerseResultRow: View {
                     navbarHidden.toggle()
                 }
             })
+            #if os(iOS)
             .toolbar(navbarHidden ? .hidden : .visible, for: .navigationBar)
+            #endif
         } label: {
             VStack(alignment: .leading, spacing: 4) {
                 Text(verse.text)
@@ -142,7 +144,9 @@ struct ChapterResultRow: View {
                     navbarHidden.toggle()
                 }
             })
+            #if os(iOS)
             .toolbar(navbarHidden ? .hidden : .visible, for: .navigationBar)
+            #endif
         } label: {
             HStack {
                 Text(chapter.displayTitle)
