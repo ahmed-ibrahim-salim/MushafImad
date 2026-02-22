@@ -4,7 +4,14 @@ enum SearchRow: Identifiable {
     case chapter(Chapter)
     case verse(Verse)
 
-    var id: UUID { UUID() }
+    var id: String {
+        switch self {
+        case .chapter(let chapter):
+            return String(chapter.id)
+        case .verse(let verse):
+            return String(verse.id)
+        }
+    }
 }
 
 enum ViewState {
@@ -31,7 +38,7 @@ class MushafSearchViewModel: ObservableObject {
             viewState = .idle
             return
         }
-        
+
         searchTask?.cancel()
         searchTask = nil
 
