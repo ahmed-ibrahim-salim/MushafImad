@@ -261,8 +261,15 @@ private struct VerseByVerseDemo: View {
         MushafView(
             initialPage: highlightedVerse?.page1441?.number ?? 1,
             highlightedVerse: $highlightedVerse,
+            registerPlayerWithCoordinator: false,
             onVerseLongPress: handleLongPress(_:))
         .navigationTitle("Verse by Verse")
+        .onAppear {
+            QuranPlayerCoordinator.shared.registerActivePlayer(playerViewModel)
+        }
+        .onDisappear {
+            QuranPlayerCoordinator.shared.unregisterActivePlayer(playerViewModel)
+        }
         .sheet(isPresented: $showPlayerSheet) {
             VersePlaybackSheet(playerViewModel: playerViewModel, highlightedVerse: $highlightedVerse)
                 .environmentObject(reciterService)
