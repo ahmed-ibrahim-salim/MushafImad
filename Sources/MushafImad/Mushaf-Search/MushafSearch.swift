@@ -12,9 +12,16 @@ struct SearchRow: Identifiable {
     let verse: Verse?
 }
 
+enum ViewState {
+    case idle
+    case loading
+    case data([SearchRow])
+    case error(String)
+}
+
 @MainActor
 class MushafSearchViewModel: ObservableObject {
-    @Published var searchResults: [SearchRow] = []
+    @Published var state: ViewState = .idle
     @Published var query: String = ""
     private var service: RealmService
 
@@ -26,14 +33,14 @@ class MushafSearchViewModel: ObservableObject {
         guard query.count != 0 else { return }
 
         let chapters = service.searchChapters(query: query)
-//        let verses = service.searchVerses(query: query)
+        let verses = service.searchVerses(query: query)
 
         var rows: [SearchRow] = []
         rows.append(contentsOf: chapters.map { SearchRow(chapter: $0, verse: nil) })
 //        rows.append(contentsOf: verses.map { SearchRow(chapter: nil, verse: $0) })
 
         // Optionally: sort or prioritize chapters vs verses here
-        searchResults = rows
+        state = .data(rows)
     }
 }
 
@@ -44,18 +51,31 @@ public struct MushafSearch: View {
 
     public var body: some View {
         NavigationView {
-            List(viewModel.searchResults, id: \.id) { row in
-                if let chapter = row.chapter {
-                    ChapterResultRow(chapter: chapter)
-                } else if let verse = row.verse {
-                    VerseResultRow(verse: verse)
+            switch viewModel.state {
+            case .idle:
+                Text("Start typing to search chapters and verses")
+            case .data(let rows):
+                if rows.isEmpty {
+                    Text("No results found for \"\(viewModel.query)\"")
                 } else {
-                    EmptyView()
+                    List(rows, id: \.id) { row in
+                        if let chapter = row.chapter {
+                            ChapterResultRow(chapter: chapter)
+                        } else if let verse = row.verse {
+                            VerseResultRow(verse: verse)
+                        } else {
+                            EmptyView()
+                        }
+                    }
+                    .searchable(text: $viewModel.query, prompt: "Search Al-Baqarah, Al-Hamdu...")
+                    .task(id: viewModel.query) {
+                        await viewModel.searchChaptersAndVerses()
+                    }
                 }
-            }
-            .searchable(text: $viewModel.query, prompt: "Search Al-Baqarah, Al-Hamdu...")
-            .task(id: viewModel.query) {
-                await viewModel.searchChaptersAndVerses()
+            case .loading:
+                ProgressView()
+            case .error(let message):
+                Text("Error: \(message)")
             }
         }
     }
