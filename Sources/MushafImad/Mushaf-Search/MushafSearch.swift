@@ -7,9 +7,9 @@ enum SearchRow: Identifiable {
     var id: String {
         switch self {
         case .chapter(let chapter):
-            return String(chapter.id)
+            return "chapter-\(chapter.id)"
         case .verse(let verse):
-            return String(verse.id)
+            return "verse-\(verse.id)"
         }
     }
 }
@@ -27,7 +27,7 @@ class MushafSearchViewModel: ObservableObject {
     private var searchTask: Task<Void, Never>? = nil
     private var service: RealmService
 
-    init(service: RealmService = RealmService.shared) {
+    init(service: RealmService) {
         self.service = service
     }
 
@@ -68,7 +68,7 @@ class MushafSearchViewModel: ObservableObject {
 }
 
 public struct MushafSearch: View {
-    @StateObject private var viewModel = MushafSearchViewModel()
+    @StateObject private var viewModel = MushafSearchViewModel(service: RealmService.shared)
 
     public init() {}
 
