@@ -51,31 +51,33 @@ public struct MushafSearch: View {
 
     public var body: some View {
         NavigationView {
-            switch viewModel.state {
-            case .idle:
-                Text("Start typing to search chapters and verses")
-            case .data(let rows):
-                if rows.isEmpty {
-                    Text("No results found for \"\(viewModel.query)\"")
-                } else {
-                    List(rows, id: \.id) { row in
-                        if let chapter = row.chapter {
-                            ChapterResultRow(chapter: chapter)
-                        } else if let verse = row.verse {
-                            VerseResultRow(verse: verse)
-                        } else {
-                            EmptyView()
+            VStack {
+                switch viewModel.state {
+                case .idle:
+                    Text("Start typing to search chapters and verses")
+                case .data(let rows):
+                    if rows.isEmpty {
+                        Text("No results found for \"\(viewModel.query)\"")
+                    } else {
+                        List(rows, id: \.id) { row in
+                            if let chapter = row.chapter {
+                                ChapterResultRow(chapter: chapter)
+                            } else if let verse = row.verse {
+                                VerseResultRow(verse: verse)
+                            } else {
+                                EmptyView()
+                            }
                         }
                     }
-                    .searchable(text: $viewModel.query, prompt: "Search Al-Baqarah, Al-Hamdu...")
-                    .task(id: viewModel.query) {
-                        await viewModel.searchChaptersAndVerses()
-                    }
+                case .loading:
+                    ProgressView()
+                case .error(let message):
+                    Text("Error: \(message)")
                 }
-            case .loading:
-                ProgressView()
-            case .error(let message):
-                Text("Error: \(message)")
+            }
+            .searchable(text: $viewModel.query, prompt: "Search Al-Baqarah, Al-Hamdu...")
+            .task(id: viewModel.query) {
+                await viewModel.searchChaptersAndVerses()
             }
         }
     }
