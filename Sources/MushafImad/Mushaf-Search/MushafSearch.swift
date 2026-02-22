@@ -1,9 +1,3 @@
-//
-//  Mushaf.swift
-//  MushafImad
-//
-//  Created by Ahmad on 22/02/2026.
-//
 import SwiftUI
 
 struct SearchRow: Identifiable {
@@ -21,25 +15,47 @@ enum ViewState {
 
 @MainActor
 class MushafSearchViewModel: ObservableObject {
-    @Published var state: ViewState = .idle
+    @Published var viewState: ViewState = .idle
     @Published var query: String = ""
+    private var searchTask: Task<Void, Never>? = nil
     private var service: RealmService
 
     init(service: RealmService = RealmService.shared) {
         self.service = service
     }
 
-    func searchChaptersAndVerses() async {
-        guard query.count != 0 else { return }
+    func searchChaptersAndVerses() {
+        guard !query.isEmpty else { return }
+        searchTask?.cancel()
+        
+        searchTask = Task { [weak self] in
+            guard let self = self else { return }
+            guard !Task.isCancelled else { return }
 
-        let chapters = service.searchChapters(query: query)
-        let verses = service.searchVerses(query: query)
-        var rows: [SearchRow] = []
-        rows.append(contentsOf: chapters.map { SearchRow(chapter: $0, verse: nil) })
-        rows.append(contentsOf: verses.map { SearchRow(chapter: nil, verse: $0) })
+            do {
+                try await Task.sleep(nanoseconds: 300_000_000) // 300 millisec
+            } catch {
+                return // task cancelled
+            }
+            
+            guard !Task.isCancelled else { return }
 
-        // Note: Prioritize chapters over verses as chapters count will always be less than verses results.
-        state = .data(rows)
+            viewState = .loading
+            do {
+                let chapters = service.searchChapters(query: query)
+                let verses = service.searchVerses(query: query)
+                var rows: [SearchRow] = []
+                rows.append(contentsOf: chapters.map { SearchRow(chapter: $0, verse: nil) })
+                rows.append(contentsOf: verses.map { SearchRow(chapter: nil, verse: $0) })
+                
+                // Note: Prioritize chapters over verses as chapters count will always be less than verses results.
+                viewState = .data(rows)
+            } catch is CancellationError {
+                return // task cancelled
+            } catch {
+                viewState = .error(error.localizedDescription)
+            }
+        }
     }
 }
 
@@ -51,7 +67,7 @@ public struct MushafSearch: View {
     public var body: some View {
         NavigationView {
             VStack {
-                switch viewModel.state {
+                switch viewModel.viewState {
                 case .idle:
                     Text("Start typing to search chapters and verses")
                 case .data(let rows):
@@ -76,7 +92,7 @@ public struct MushafSearch: View {
             }
             .searchable(text: $viewModel.query, prompt: "Search Al-Baqarah, Al-Hamdu...")
             .task(id: viewModel.query) {
-                await viewModel.searchChaptersAndVerses()
+                viewModel.searchChaptersAndVerses()
             }
         }
     }

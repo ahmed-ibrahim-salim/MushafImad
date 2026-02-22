@@ -31,6 +31,7 @@ struct ContentView_iOS: View {
                         
                         NavigationLink("Search the Mushaf") {
                             MushafSearch()
+                                .environmentObject(reciterService)
                                 .environmentObject(toastManager)
                         }
                     }
