@@ -34,12 +34,11 @@ class MushafSearchViewModel: ObservableObject {
 
         let chapters = service.searchChapters(query: query)
         let verses = service.searchVerses(query: query)
-
         var rows: [SearchRow] = []
         rows.append(contentsOf: chapters.map { SearchRow(chapter: $0, verse: nil) })
-//        rows.append(contentsOf: verses.map { SearchRow(chapter: nil, verse: $0) })
+        rows.append(contentsOf: verses.map { SearchRow(chapter: nil, verse: $0) })
 
-        // Optionally: sort or prioritize chapters vs verses here
+        // Note: Prioritize chapters over verses as chapters count will always be less than verses results.
         state = .data(rows)
     }
 }
@@ -85,21 +84,31 @@ public struct MushafSearch: View {
 
 struct VerseResultRow: View {
     let verse: Verse
+    @State private var navbarHidden: Bool = true
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(verse.text)
-                .font(.body)
-                .lineLimit(2)
-            HStack {
-                if let ch = verse.chapter?.title {
-                    Text(ch)
-                        .font(.caption)
+        NavigationLink {
+            MushafView(initialPage: verse.page1405?.number, highlightedVerse: verse, onPageTap: {
+                withAnimation {
+                    navbarHidden.toggle()
+                }
+            })
+            .toolbar(navbarHidden ? .hidden : .visible, for: .navigationBar)
+        } label: {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(verse.text)
+                    .font(.body)
+                    .lineLimit(2)
+                HStack {
+                    if let ch = verse.chapter?.title {
+                        Text(ch)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    Text("#\(verse.number)")
+                        .font(.caption2)
                         .foregroundColor(.secondary)
                 }
-                Text("#\(verse.number)")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
             }
         }
     }
