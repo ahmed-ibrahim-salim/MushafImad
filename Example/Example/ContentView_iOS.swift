@@ -28,6 +28,11 @@ struct ContentView_iOS: View {
                                 .environmentObject(reciterService)
                                 .environmentObject(toastManager)
                         }
+                        
+                        NavigationLink("Search the Mushaf") {
+                            MushafSearch()
+                                .environmentObject(toastManager)
+                        }
                     }
                     
                     Section("Customization") {
@@ -79,6 +84,7 @@ struct ContentView_iOS: View {
     }
 }
 
+// MARK: Sura List
 private struct SuraList: View {
     @State private var suras:[Chapter] = .init()
     @State private var navbarHidden:Bool = true
@@ -122,6 +128,7 @@ private struct MushafReaderDemo: View {
     }
 }
 
+// MARK: Custom Branding
 private struct CustomBrandingDemo: View {
     @State private var useCustomBranding = true
     
@@ -180,6 +187,7 @@ private struct CustomBrandingDemo: View {
     }
 }
 
+// MARK: Toast
 private struct ToastDemo: View {
     @EnvironmentObject private var toastManager: ToastManager
     
@@ -218,6 +226,7 @@ private struct ToastDemo: View {
     }
 }
 
+// MARK: Audio Player
 private struct AudioPlayerDemo: View {
     @EnvironmentObject private var reciterService: ReciterService
     @EnvironmentObject private var toastManager: ToastManager
@@ -248,6 +257,7 @@ private struct AudioPlayerDemo: View {
     }
 }
 
+// MARK: Verse by Verse
 private struct VerseByVerseDemo: View {
     @EnvironmentObject private var reciterService: ReciterService
     @EnvironmentObject private var toastManager: ToastManager
@@ -307,6 +317,7 @@ private struct VerseByVerseDemo: View {
     }
 }
 
+// MARK: - Verse Playback Sheet
 private struct VersePlaybackSheet: View {
     @ObservedObject var playerViewModel: QuranPlayerViewModel
     @Binding var highlightedVerse: Verse?
