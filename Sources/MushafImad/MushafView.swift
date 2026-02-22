@@ -66,6 +66,11 @@ public struct MushafView: View {
     private let highlightedVerseBinding: Binding<Verse?>?
     private let externalLongPressHandler: ((Verse) -> Void)?
     private let externalPageTapHandler: (() -> Void)?
+    /// When false, the view does not auto-register its internal player with
+    /// QuranPlayerCoordinator. Set to false when the embedding view manages
+    /// its own player and handles coordinator registration itself (e.g. VerseByVerseDemo),
+    /// to avoid transient dual-registration overwriting the outer player.
+    private let registersPlayerWithCoordinator: Bool
     
     @State private var viewModel = ViewModel()
     @StateObject private var playerViewModel = QuranPlayerViewModel()
@@ -81,24 +86,28 @@ public struct MushafView: View {
     
     public init(initialPage: Int? = nil,
                 highlightedVerse: Verse? = nil,
+                registerPlayerWithCoordinator: Bool = true,
                 onVerseLongPress: ((Verse) -> Void)? = nil,
                 onPageTap: (() -> Void)? = nil
     ) {
         self.initialPage = initialPage
         self.staticHighlightedVerse = highlightedVerse
         self.highlightedVerseBinding = nil
+        self.registersPlayerWithCoordinator = registerPlayerWithCoordinator
         self.externalLongPressHandler = onVerseLongPress
         self.externalPageTapHandler = onPageTap
     }
-    
+
     public init(initialPage: Int? = nil,
                 highlightedVerse: Binding<Verse?>,
+                registerPlayerWithCoordinator: Bool = true,
                 onVerseLongPress: ((Verse) -> Void)? = nil,
                 onPageTap: (() -> Void)? = nil
     ) {
         self.initialPage = initialPage
         self.highlightedVerseBinding = highlightedVerse
         self.staticHighlightedVerse = nil
+        self.registersPlayerWithCoordinator = registerPlayerWithCoordinator
         self.externalLongPressHandler = onVerseLongPress
         self.externalPageTapHandler = onPageTap
     }
@@ -125,6 +134,16 @@ public struct MushafView: View {
         }
         .task {
             await viewModel.initializePageView(initialPage: initialPage)
+        }
+        .onAppear {
+            if registersPlayerWithCoordinator {
+                QuranPlayerCoordinator.shared.registerActivePlayer(playerViewModel)
+            }
+        }
+        .onDisappear {
+            if registersPlayerWithCoordinator {
+                QuranPlayerCoordinator.shared.unregisterActivePlayer(playerViewModel)
+            }
         }
         .onChange(of: playerViewModel.playbackState) { oldState, newState in
             // Clear highlighting when playback stops
