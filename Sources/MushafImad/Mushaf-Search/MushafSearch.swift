@@ -1,16 +1,16 @@
 import SwiftUI
 
-struct SearchRow: Identifiable {
-    let id = UUID()
-    let chapter: Chapter?
-    let verse: Verse?
+enum SearchRow: Identifiable {
+    case chapter(Chapter)
+    case verse(Verse)
+
+    var id: UUID { UUID() }
 }
 
 enum ViewState {
     case idle
     case loading
     case data([SearchRow])
-    case error(String)
 }
 
 @MainActor
@@ -44,8 +44,8 @@ class MushafSearchViewModel: ObservableObject {
             let chapters = service.searchChapters(query: query)
             let verses = service.searchVerses(query: query)
             var rows: [SearchRow] = []
-            rows.append(contentsOf: chapters.map { SearchRow(chapter: $0, verse: nil) })
-            rows.append(contentsOf: verses.map { SearchRow(chapter: nil, verse: $0) })
+            rows.append(contentsOf: chapters.map { SearchRow.chapter($0) })
+            rows.append(contentsOf: verses.map { SearchRow.verse($0) })
 
             // Note: Prioritize chapters over verses as chapters count will always be less than verses results.
             viewState = .data(rows)
@@ -68,19 +68,14 @@ public struct MushafSearch: View {
                     Text("No results found for \"\(viewModel.query)\"")
                 } else {
                     List(rows, id: \.id) { row in
-                        if let chapter = row.chapter {
-                            ChapterResultRow(chapter: chapter)
-                        } else if let verse = row.verse {
-                            VerseResultRow(verse: verse)
-                        } else {
-                            EmptyView()
+                        switch row {
+                        case .chapter(let chapter): ChapterResultRow(chapter: chapter)
+                        case .verse(let verse): VerseResultRow(verse: verse)
                         }
                     }
                 }
             case .loading:
                 ProgressView()
-            case .error(let message):
-                Text("Error: \(message)")
             }
         }
         .searchable(text: $viewModel.query, prompt: "Search Al-Baqarah, Al-Hamdu...")
