@@ -108,7 +108,7 @@ struct VerseResultRow: View {
                     .font(.body)
                     .lineLimit(2)
                 HStack {
-                    if let ch = verse.chapter?.title {
+                    if let ch = verse.chapter?.displayTitle {
                         Text(ch)
                             .font(.caption)
                             .foregroundColor(.secondary)
