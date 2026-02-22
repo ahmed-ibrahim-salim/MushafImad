@@ -98,7 +98,7 @@ struct VerseResultRow: View {
 
     var body: some View {
         NavigationLink {
-            MushafView(initialPage: verse.page1405?.number, highlightedVerse: verse, onPageTap: {
+            MushafView(initialPage: verse.page1441?.number, highlightedVerse: verse, onPageTap: {
                 withAnimation {
                     navbarHidden.toggle()
                 }
