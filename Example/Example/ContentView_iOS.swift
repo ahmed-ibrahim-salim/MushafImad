@@ -130,9 +130,7 @@ private struct MushafReaderDemo: View {
                     navbarHidden.toggle()
                 }
             })
-			#if os(iOS)
-            .toolbar(navbarHidden ? .hidden : .visible, for: .navigationBar)
-            #endif
+            .toolbarVisibility(navbarHidden ? .hidden : .visible, for: .navigationBar)
             .navigationTitle("Reader")
             .navigationBarTitleDisplayMode(.inline)
     }
