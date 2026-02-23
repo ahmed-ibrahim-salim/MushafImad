@@ -27,11 +27,19 @@ public final class AudioSessionManager {
     /// Registers handlers for audio session interruptions (incoming calls,
     /// system alerts, etc.). The caller is responsible for pausing/resuming the
     /// active player when these closures fire.
+    private var interruptionObserver: Any?
+
     public func setupInterruptionHandling(
         onInterruptionBegan: @escaping () -> Void,
         onInterruptionEnded: @escaping () -> Void
     ) {
-        NotificationCenter.default.addObserver(
+        // remove existing observer if previously registered
+        if let obs = interruptionObserver {
+            NotificationCenter.default.removeObserver(obs)
+            interruptionObserver = nil
+        }
+
+        interruptionObserver = NotificationCenter.default.addObserver(
             forName: AVAudioSession.interruptionNotification,
             object: AVAudioSession.sharedInstance(),
             queue: .main
@@ -53,6 +61,13 @@ public final class AudioSessionManager {
             @unknown default:
                 break
             }
+        }
+    }
+
+    @MainActor
+    deinit {
+        if let obs = interruptionObserver {
+            NotificationCenter.default.removeObserver(obs)
         }
     }
 }

@@ -59,6 +59,11 @@ public final class QuranPlayerViewModel: ObservableObject {
     private var shouldResumeAfterSeek = false
     private var shouldAutoStart = true
 
+    // background/lock‑screen support is delegated to a helper so the view model
+    // remains focused on playback logic. The helper lazily configures itself
+    // when startIfNeeded(autoPlay:) is called.
+    private var backgroundHelper: BackgroundPlaybackHelper?
+
     // MARK: - Init / Deinit
 
     public init(baseURL: URL? = nil, chapterNumber: Int = 0, chapterName: String = "", reciterName: String? = nil) {
@@ -135,6 +140,8 @@ public final class QuranPlayerViewModel: ObservableObject {
             return
         }
 
+        ensureBackgroundSupport()
+
         switch playbackState {
         case .idle, .failed:
             preparePlayer(autoPlay: autoPlay)
@@ -149,6 +156,7 @@ public final class QuranPlayerViewModel: ObservableObject {
 
     public func stop() {
         cleanup()
+        cleanupBackgroundHelper()
         playbackState = .idle
         currentTime = 0
         duration = 0
@@ -229,6 +237,20 @@ public final class QuranPlayerViewModel: ObservableObject {
     }
 
     // MARK: - Playback Controls
+
+    private func ensureBackgroundSupport() {
+        if backgroundHelper == nil {
+            let helper = BackgroundPlaybackHelper()
+            helper.attach(to: self)
+            backgroundHelper = helper
+        }
+    }
+
+    // when detached or deinit, ensure helper is cleaned up
+    private func cleanupBackgroundHelper() {
+        backgroundHelper?.detach()
+        backgroundHelper = nil
+    }
 
     public func togglePlayback() {
         switch playbackState {
