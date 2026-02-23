@@ -49,6 +49,7 @@ public struct PlayerViewUI: View {
                 )
                 .id(chapter.number)
                 .onAppear {
+                    // Configure the player with the current reciter and chapter
                     playerViewModel.configureIfNeeded(
                         baseURL: baseURL,
                         chapterNumber: chapter.number,
