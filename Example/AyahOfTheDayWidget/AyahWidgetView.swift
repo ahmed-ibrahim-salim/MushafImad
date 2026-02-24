@@ -8,11 +8,11 @@ struct AyahWidgetView: View {
     var body: some View {
         let url = URL(string: "mushafimad://ayah/\(entry.ayah.surahNumber)/\(entry.ayah.ayahNumber)")
         
-        VStack(alignment: .trailing, spacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
 
             Text(entry.ayah.text)
                 .font(.custom("Kitab-Bold", size: 16))
-                .multilineTextAlignment(.trailing)
+                .multilineTextAlignment(.leading)
                 .lineLimit(4)
 
             Spacer(minLength: 4)

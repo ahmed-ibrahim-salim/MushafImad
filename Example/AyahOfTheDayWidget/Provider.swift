@@ -1,19 +1,27 @@
 import WidgetKit
+import MushafImad
 
 struct Provider: TimelineProvider {
 
-    // آيات تجريبية (ديناميكية بسيطة)
-    private let sampleAyat: [Ayah] = [
-        Ayah(text: "إِنَّ مَعَ الْعُسْرِ يُسْرًا", surahName: "الشرح", surahNumber: 94, ayahNumber: 6),
-        Ayah(text: "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ", surahName: "الرعد", surahNumber: 13, ayahNumber: 28),
-        Ayah(text: "فَاذْكُرُونِي أَذْكُرْكُمْ", surahName: "البقرة", surahNumber: 2, ayahNumber: 152)
-    ]
+    init() {
+        // Initialize Realm in read-only mode for the widget
+        try? RealmService.shared.initializeForWidget()
+    }
 
     // اختيار آية بناءً على التاريخ
     private func ayahForDate(_ date: Date) -> Ayah {
-        let daysSinceEpoch = Int(date.timeIntervalSince1970 / 86400)
-        let index = daysSinceEpoch % sampleAyat.count
-        return sampleAyat[abs(index)]
+        if let verse = RealmService.shared.getRandomAyah(for: date),
+           let chapter = verse.chapter {
+            return Ayah(
+                text: verse.textWithoutTashkil.isEmpty ? verse.text : verse.textWithoutTashkil,
+                surahName: chapter.arabicTitle,
+                surahNumber: chapter.number,
+                ayahNumber: verse.number
+            )
+        }
+        
+        // Fallback ayah if Realm fails
+        return Ayah(text: "إِنَّ مَعَ الْعُسْرِ يُسْرًا", surahName: "الشرح", surahNumber: 94, ayahNumber: 6)
     }
 
     func placeholder(in context: Context) -> AyahEntry {

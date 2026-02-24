@@ -52,6 +52,13 @@
 			);
 			target = 3F3825252F4E2E5D0096FE49 /* AyahOfTheDayWidgetExtension */;
 		};
+		3F38254B2F4E2F7D0096FE49 /* Exceptions for "Example" folder in "AyahOfTheDayWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Kitab-Bold.ttf",
+			);
+			target = 3F3825252F4E2E5D0096FE49 /* AyahOfTheDayWidgetExtension */;
+		};
 		F603F9D82EC5E31D00DB1C13 /* Exceptions for "Example" folder in "Example" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -74,6 +81,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				F603F9D82EC5E31D00DB1C13 /* Exceptions for "Example" folder in "Example" target */,
+				3F38254B2F4E2F7D0096FE49 /* Exceptions for "Example" folder in "AyahOfTheDayWidgetExtension" target */,
 			);
 			path = Example;
 			sourceTree = "<group>";

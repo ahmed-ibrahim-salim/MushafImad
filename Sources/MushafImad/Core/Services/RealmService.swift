@@ -18,6 +18,27 @@ public final class RealmService {
     
     private init() {}
     
+    // MARK: - Initialization (Widget)
+    
+    /// Initializes Realm in read-only mode, directly from the App Bundle.
+    /// Used by extensions (like App Widgets) that do not have write access to Application Support.
+    public func initializeForWidget() throws {
+        if realm != nil {
+            return
+        }
+        
+        guard let bundledRealmURL = Bundle.mushafResources.url(forResource: "quran", withExtension: "realm") else {
+            throw NSError(domain: "RealmService", code: 1,
+                         userInfo: [NSLocalizedDescriptionKey: "Could not find quran.realm in bundle"])
+        }
+        
+        var config = Realm.Configuration(fileURL: bundledRealmURL)
+        config.readOnly = true
+        configuration = config
+        
+        realm = try Realm(configuration: config)
+    }
+    
     // MARK: - Initialization
     
     public func initialize() throws {
@@ -220,6 +241,20 @@ public final class RealmService {
     public func getVerse(chapterNumber: Int, verseNumber: Int) -> Verse? {
         let humanReadableID = "\(chapterNumber)_\(verseNumber)"
         return realm?.objects(Verse.self).filter("humanReadableID == %@", humanReadableID).first?.freeze()
+    }
+    
+    public func getRandomAyah(for date: Date) -> Verse? {
+        guard let realm = realm else { return nil }
+        
+        let allVerses = realm.objects(Verse.self)
+        let count = allVerses.count
+        guard count > 0 else { return nil }
+        
+        let daysSinceEpoch = Int(date.timeIntervalSince1970 / 86400)
+        let index = abs(daysSinceEpoch) % count
+        
+        // Results are unordered. Using an offset fetch:
+        return allVerses[index].freeze()
     }
     
     // MARK: - Part (Juz) Operations
