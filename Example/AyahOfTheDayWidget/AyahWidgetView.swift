@@ -8,22 +8,22 @@ struct AyahWidgetView: View {
     var body: some View {
         let url = URL(string: "mushafimad://ayah/\(entry.ayah.surahNumber)/\(entry.ayah.ayahNumber)")
         
-        VStack(alignment: .leading, spacing: 8) {
+        ZStack {
+            VStack(spacing: 8) {
 
-            Text(entry.ayah.text)
-                .font(.custom("Kitab-Bold", size: 16))
-                .multilineTextAlignment(.leading)
-                .lineLimit(4)
+                Text(entry.ayah.text)
+                    .font(.custom("Kitab-Bold", size: 16))
+                    .multilineTextAlignment(.leading)
+                    .minimumScaleFactor(0.4)
 
-            Spacer(minLength: 4)
+                Text("\(entry.ayah.surahName) • \(entry.ayah.ayahNumber)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
 
-            Text("\(entry.ayah.surahName) • \(entry.ayah.ayahNumber)")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
+            }
+            .environment(\.layoutDirection, .rightToLeft)
+            .padding()
         }
-        .padding()
-        .environment(\.layoutDirection, .rightToLeft)
         .containerBackground(.background, for: .widget)
         .widgetURL(url)
     }

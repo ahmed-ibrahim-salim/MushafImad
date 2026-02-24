@@ -18,7 +18,7 @@ struct AyahOfTheDayWidget: Widget {
         }
         .configurationDisplayName("Ayah of the Day")
         .description("Displays a daily Quranic verse.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemMedium])
     }
 }
 
