@@ -20,8 +20,9 @@ public final class RealmService {
     
     // MARK: - Initialization (Widget)
     
-    /// Initializes Realm in read-only mode, directly from the App Bundle.
-    /// Used by extensions (like App Widgets) that do not have write access to Application Support.
+    /// Initializes Realm for the widget by copying the bundled database to a writable location first.
+    /// This is necessary because the bundled database requires a schema upgrade (format 23 -> 24),
+    /// which cannot be performed in read-only mode from the bundle.
     public func initializeForWidget() throws {
         if realm != nil {
             return
@@ -32,10 +33,33 @@ public final class RealmService {
                          userInfo: [NSLocalizedDescriptionKey: "Could not find quran.realm in bundle"])
         }
         
-        var config = Realm.Configuration(fileURL: bundledRealmURL)
-        config.readOnly = true
-        configuration = config
+        let fileManager = FileManager.default
+        // Widgets usually can't write to Application Support safely without App Groups,
+        // but we can write to the extension's local Cache or Documents directory.
+        guard let cachesURL = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+            throw NSError(domain: "RealmService", code: 2,
+                         userInfo: [NSLocalizedDescriptionKey: "Could not access Caches directory for Widget"])
+        }
         
+        let writableRealmURL = cachesURL.appendingPathComponent("quran_widget.realm")
+        
+        // Copy if it doesn't exist
+        if !fileManager.fileExists(atPath: writableRealmURL.path) {
+            try fileManager.copyItem(at: bundledRealmURL, to: writableRealmURL)
+        }
+        
+        // Configure Realm with automatic migration (aligned with main app)
+        let config = Realm.Configuration(
+            fileURL: writableRealmURL,
+            schemaVersion: 24,
+            migrationBlock: { migration, oldSchemaVersion in
+                if oldSchemaVersion < 24 {
+                    // Perform any necessary migration
+                }
+            }
+        )
+        
+        configuration = config
         realm = try Realm(configuration: config)
     }
     
