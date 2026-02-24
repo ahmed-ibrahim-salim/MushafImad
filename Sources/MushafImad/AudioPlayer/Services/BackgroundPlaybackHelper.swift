@@ -38,8 +38,12 @@ public final class BackgroundPlaybackHelper {
         // commands
         LockScreenMetadataManager.shared.setupRemoteCommands(
             onPlayPause: { [weak player] in player?.togglePlayback() },
-            onNext: { [weak player] in _ = player?.seekToNextVerse() },
-            onPrevious: { [weak player] in _ = player?.seekToPreviousVerse() }
+            onNext: { [weak player] in
+                // TODO: Should be implemented when we start this Helper moved to QuranPlayer we will just call on next chapter
+            },
+            onPrevious: { [weak player] in
+                // TODO: Should be implemented when we start this Helper moved to QuranPlayer we will just call on previous chapter
+            }
         )
 
         // subscribe to model updates
@@ -49,7 +53,6 @@ public final class BackgroundPlaybackHelper {
                 LockScreenMetadataManager.shared.setNowPlayingInfo(
                     surahName: player.chapterName,
                     reciterName: player.reciterName,
-                    currentTime: player.currentTime,
                     duration: player.duration
                 )
             }

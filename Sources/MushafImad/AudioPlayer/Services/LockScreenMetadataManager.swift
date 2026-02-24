@@ -24,7 +24,6 @@ public final class LockScreenMetadataManager {
     public func setNowPlayingInfo(
         surahName: String,
         reciterName: String,
-        currentTime: TimeInterval,
         duration: TimeInterval,
         artwork: MPMediaItemArtwork? = nil
     ) {
@@ -32,7 +31,6 @@ public final class LockScreenMetadataManager {
         info[MPMediaItemPropertyTitle] = surahName
         info[MPMediaItemPropertyArtist] = reciterName
         info[MPMediaItemPropertyPlaybackDuration] = duration
-        info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
         if let artwork = artwork {
             info[MPMediaItemPropertyArtwork] = artwork
         }
@@ -73,5 +71,6 @@ public final class LockScreenMetadataManager {
             onPrevious()
             return .success
         }
+        AppLogger.shared.info("LockScreenMetadataManager: Remote commands set up", category: .audio)
     }
 }

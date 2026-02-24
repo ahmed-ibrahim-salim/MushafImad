@@ -20,8 +20,9 @@ public final class AudioSessionManager {
     /// first player is created.
     public func configureAudioSession() throws {
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.playback, mode: .default, options: [.duckOthers])
+        try session.setCategory(.playback, mode: .default, options: [])
         try session.setActive(true, options: .notifyOthersOnDeactivation)
+        AppLogger.shared.info("Audio Session configured", category: .audio)
     }
 
     /// Registers handlers for audio session interruptions (incoming calls,
