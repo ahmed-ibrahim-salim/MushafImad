@@ -34,7 +34,8 @@
     /// system alerts, etc.). The caller is responsible for pausing/resuming the
     /// active player when these closures fire.
     private var interruptionObserver: Any?
-
+	
+	/// Sets up handlers for audio session interruptions (incoming calls, system alerts, etc.). The caller is responsible for pausing/resuming the active player when these closures fire.
     public func setupInterruptionHandling(
       onInterruptionBegan: @escaping () -> Void,
       onInterruptionEnded: @escaping () -> Void

@@ -18,6 +18,7 @@ public final class BackgroundPlaybackHelper {
 
   public init() {}
 
+  /// Attaches the helper to a QuranPlayerViewModel. This configures the audio session, sets up interruption handling, registers remote command handlers, and subscribes to playback state updates to keep lock-screen metadata in sync. Call `detach()` to remove these handlers and subscriptions when the player is deinitialized or when background playback support is no longer needed.
   public func attach(to player: QuranPlayerViewModel) {
     guard playerViewModel !== player else { return }
 
@@ -74,6 +75,7 @@ public final class BackgroundPlaybackHelper {
       .store(in: &cancellables)
   }
 
+  /// Detaches the helper from its QuranPlayerViewModel, removing all handlers and subscriptions. Call this when the player is deinitialized or when background playback support is no longer needed.
   public func detach() {
     cancellables.removeAll()
     playerViewModel = nil
