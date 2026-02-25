@@ -53,7 +53,7 @@ buildServer.json
 
 #AI
 copilot-instructions.md
-agents
+agents/
 
 # Node.js (not used — prevent accidental commits)
 package-lock.json
