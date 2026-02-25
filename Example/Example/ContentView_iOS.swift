@@ -342,18 +342,18 @@ private struct AudioPlayerDemo: View {
                 }
                 
                   // Note: Adding this action will replace onNextChapter
-//                config.onSkipForward = {
-//                  Task { @MainActor in
-//                    _ = QuranPlayerCoordinator.shared.activePlayer?.seekToNextVerse()
-//                  }
-//                }
+               config.onSkipForward = {
+                 Task { @MainActor in
+                   _ = QuranPlayerCoordinator.shared.activePlayer?.seekToNextVerse()
+                 }
+               }
 
                   // Note: Adding this action will replace onPreviousChapter
-//                config.onSkipBackward = {
-//                  Task { @MainActor in
-//                    _ = QuranPlayerCoordinator.shared.activePlayer?.seekToPreviousVerse()
-//                  }
-//                }
+               config.onSkipBackward = {
+                 Task { @MainActor in
+                   _ = QuranPlayerCoordinator.shared.activePlayer?.seekToPreviousVerse()
+                 }
+               }
 
                 LockScreenMetadataManager.shared.setupRemoteCommands(config)
               }

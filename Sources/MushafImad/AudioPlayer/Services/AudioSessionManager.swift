@@ -62,7 +62,8 @@
           onInterruptionBegan()
         case .ended:
           let optionsRaw = notification.userInfo?[AVAudioSessionInterruptionOptionKey] as? UInt
-          let shouldResume = optionsRaw == AVAudioSession.InterruptionOptions.shouldResume.rawValue
+          let options = AVAudioSession.InterruptionOptions(rawValue: optionsRaw ?? 0)
+          let shouldResume = options.contains(.shouldResume)
           if shouldResume {
             onInterruptionEnded()
           }

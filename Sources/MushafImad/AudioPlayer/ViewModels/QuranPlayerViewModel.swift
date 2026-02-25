@@ -255,7 +255,7 @@ public final class QuranPlayerViewModel: ObservableObject {
     public func togglePlayback() {
         switch playbackState {
         case .idle, .failed:
-            preparePlayer(autoPlay: true)
+            startIfNeeded(autoPlay: true)
         case .loading:
             break
         case .ready, .paused, .finished:
