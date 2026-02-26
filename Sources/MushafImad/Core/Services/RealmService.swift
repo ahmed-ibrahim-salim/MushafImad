@@ -8,9 +8,17 @@
 import Foundation
 import RealmSwift
 
+/// Protocol abstraction over RealmService to allow dependency injection and easier testing
+@MainActor
+public protocol RealmServiceProtocol: Sendable {
+    func fetchAllChaptersAsync() async throws -> [Chapter]
+    func fetchAllPartsAsync() async throws -> [Part]
+    func fetchAllQuartersAsync() async throws -> [Quarter]
+}
+
 /// Facade around the bundled Realm database that powers Quran metadata.
 @MainActor
-public final class RealmService {
+public final class RealmService: RealmServiceProtocol {
     public static let shared = RealmService()
     
     private var realm: Realm?
@@ -73,7 +81,7 @@ public final class RealmService {
         
         // Get the path to the bundled Realm file
         guard let bundledRealmURL = Bundle.mushafResources.url(forResource: "quran", withExtension: "realm") else {
-            throw NSError(domain: "RealmService", code: 1, 
+            throw NSError(domain: "RealmService", code: 1,
                          userInfo: [NSLocalizedDescriptionKey: "Could not find quran.realm in bundle"])
         }
         
@@ -353,13 +361,7 @@ public final class RealmService {
                         let realm = try Realm(configuration: config)
                         // Fetch all quarters and sort in memory (by hizbNumber, then hizbFraction)
                         let results = realm.objects(Quarter.self)
-                        let sorted = Array(results).sorted { q1, q2 in
-                            if q1.hizbNumber != q2.hizbNumber {
-                                return q1.hizbNumber < q2.hizbNumber
-                            }
-                            return q1.hizbFraction < q2.hizbFraction
-                        }
-                        let frozen = sorted.map { $0.freeze() }
+                        let frozen = Array(results.freeze())
                         continuation.resume(returning: frozen)
                     } catch {
                         continuation.resume(throwing: error)
