@@ -36,14 +36,16 @@ struct ItqanTimingProviderTests {
         let session = URLSession(configuration: configuration)
         let apiClient = ItqanAPIClient(baseURL: URL(string: "https://itqan.test")!, session: session, ttl: 60)
 
-        MockURLProtocol.requestHandler = { request in
-            let response = HTTPURLResponse(
-                url: try #require(request.url),
-                statusCode: 200,
-                httpVersion: nil,
-                headerFields: ["Content-Type": "application/json"]
-            )!
-            return (response, payload)
+        await MainActor.run {
+            MockURLProtocol.requestHandler = { request in
+                let response = HTTPURLResponse(
+                    url: try! #require(request.url),
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: ["Content-Type": "application/json"]
+                )!
+                return (response, payload)
+            }
         }
 
         return ItqanTimingProvider(apiClient: apiClient)
@@ -87,18 +89,20 @@ struct ItqanTimingProviderTests {
 
         let provider = makeProvider(payload: payload)
 
-        MockURLProtocol.requestHandler = { request in
-            let url = try #require(request.url)
-            #expect(url.path.contains("/recitations/11/"))
-            #expect(url.query?.contains("page=1") == true)
-            #expect(url.query?.contains("page_size=114") == true)
-            let response = HTTPURLResponse(
-                url: url,
-                statusCode: 200,
-                httpVersion: nil,
-                headerFields: ["Content-Type": "application/json"]
-            )!
-            return (response, payload)
+        await MainActor.run {
+            MockURLProtocol.requestHandler = { request in
+                let url = try! #require(request.url)
+                #expect(url.path.contains("/recitations/11/"))
+                #expect(url.query?.contains("page=1") == true)
+                #expect(url.query?.contains("page_size=114") == true)
+                let response = HTTPURLResponse(
+                    url: url,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: ["Content-Type": "application/json"]
+                )!
+                return (response, payload)
+            }
         }
 
         await #expect(throws: TimingProviderError.self) {
