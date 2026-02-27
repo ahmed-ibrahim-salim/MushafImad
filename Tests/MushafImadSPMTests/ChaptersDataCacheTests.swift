@@ -72,7 +72,7 @@ struct ChaptersDataCacheTests {
         chaptersCache.setRealmService(realmStub)
 
         // Act
-      try await chaptersCache.loadAndCache()
+        try await chaptersCache.loadAndCache()
         try await chaptersCache.loadPartsGrouping()
 
         // Assert
