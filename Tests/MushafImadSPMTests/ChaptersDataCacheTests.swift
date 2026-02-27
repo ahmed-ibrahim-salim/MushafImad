@@ -6,13 +6,20 @@ import Testing
 @MainActor
 struct ChaptersDataCacheTests {
     
+    func clearAfterEachTest() {
+        ChaptersDataCache.shared.clearCache()
+        ChaptersDataCache.shared.setRealmService(RealmService.shared) // Reset to default RealmService after tests
+    }
+    
     @Test
     func testInitialCacheIsEmpty() async {
         // Arrange
         let chaptersCache = ChaptersDataCache.shared
-        chaptersCache.setRealmService(RealmServiceStub())
-        defer { chaptersCache.clearCache() }
-        
+        let realmStub = RealmServiceStub()
+        defer { clearAfterEachTest() }
+
+        chaptersCache.setRealmService(realmStub)
+
         // Assert
         #expect(chaptersCache.allChapters.isEmpty)
         #expect(chaptersCache.allChaptersByPart.isEmpty)
@@ -29,7 +36,7 @@ struct ChaptersDataCacheTests {
         // Arrange
         let chaptersCache = ChaptersDataCache.shared
         let realmStub = RealmServiceStub()
-        defer { chaptersCache.clearCache() }
+        defer { clearAfterEachTest() }
         var onBatchLoadedCalled = false
         let onBatchLoaded: (Int) -> Void = {_ in
             onBatchLoadedCalled = true
@@ -50,7 +57,7 @@ struct ChaptersDataCacheTests {
         // Arrange
         let chaptersCache = ChaptersDataCache.shared
         let realmStub = RealmServiceStub()
-        defer { chaptersCache.clearCache() }
+        defer { clearAfterEachTest() }
 
         /// Prepare a chapter, verse & page using existing mocks
         let chapter = Chapter.mock
@@ -79,7 +86,7 @@ struct ChaptersDataCacheTests {
         // Arrange
         let chaptersCache = ChaptersDataCache.shared
         let realmStub = RealmServiceStub()
-        defer { chaptersCache.clearCache() }
+        defer { clearAfterEachTest() }
 
         /// Prepare chapter, verse and page using mocks
         let chapter = Chapter.mock
@@ -108,7 +115,7 @@ struct ChaptersDataCacheTests {
         // Arrange
         let chaptersCache = ChaptersDataCache.shared
         let realmStub = RealmServiceStub()
-        defer { chaptersCache.clearCache() }
+        defer { clearAfterEachTest() }
 
         /// Create a meccan chapter
         let meccanChapter = Chapter.mock
@@ -138,6 +145,44 @@ struct ChaptersDataCacheTests {
         #expect(medinanGroup != nil)
         #expect(meccanGroup?.firstPage == meccanPage.number)
         #expect(medinanGroup?.firstPage == medinanChapter.verses.first?.page1441?.number)
+    }
+    
+    @Test func testClearCache() async throws {
+        // Arrange
+        let chaptersCache = ChaptersDataCache.shared
+        let realmStub = RealmServiceStub()
+        defer { clearAfterEachTest() }
+
+        /// Prepare sample data using mocks
+        let chapter = Chapter.mock
+        let verse = Verse.mock
+        let page = Page.mock
+        let part = Part.makeMock(chapter: chapter, verse: verse, page: page)
+        let quarter = Quarter.makeMock(chapter: chapter, verse: verse, page: page)
+
+        realmStub.chapters = [chapter]
+        realmStub.parts = [part]
+        realmStub.quarters = [quarter]
+        chaptersCache.setRealmService(realmStub)
+
+        /// Load all caches first
+        try await chaptersCache.loadAndCache()
+        try await chaptersCache.loadPartsGrouping()
+        try await chaptersCache.loadQuartersGrouping()
+        chaptersCache.loadTypesGrouping()
+
+        // Act
+        chaptersCache.clearCache()
+
+        // Assert
+        #expect(chaptersCache.allChapters.isEmpty)
+        #expect(chaptersCache.allChaptersByPart.isEmpty)
+        #expect(chaptersCache.allChaptersByHizb.isEmpty)
+        #expect(chaptersCache.allChaptersByType.isEmpty)
+        #expect(chaptersCache.isCached == false)
+        #expect(chaptersCache.isPartsCached == false)
+        #expect(chaptersCache.isHizbCached == false)
+        #expect(chaptersCache.isTypeCached == false)
     }
 
 }
