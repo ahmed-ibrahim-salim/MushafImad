@@ -361,7 +361,13 @@ public final class RealmService: RealmServiceProtocol {
                         let realm = try Realm(configuration: config)
                         // Fetch all quarters and sort in memory (by hizbNumber, then hizbFraction)
                         let results = realm.objects(Quarter.self)
-                        let frozen = Array(results.freeze())
+                        let sorted = Array(results).sorted { q1, q2 in
+                            if q1.hizbNumber != q2.hizbNumber {
+                                return q1.hizbNumber < q2.hizbNumber
+                            }
+                            return q1.hizbFraction < q2.hizbFraction
+                        }
+                        let frozen = sorted.map { $0.freeze() }
                         continuation.resume(returning: frozen)
                     } catch {
                         continuation.resume(throwing: error)
