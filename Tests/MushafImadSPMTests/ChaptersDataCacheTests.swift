@@ -3,6 +3,7 @@ import Testing
 @testable import MushafImad
 
 /// Tests for ChaptersDataCache to ensure caching logic works correctly and improves performance as expected.
+@Suite(.serialized)
 @MainActor
 struct ChaptersDataCacheTests {
     
