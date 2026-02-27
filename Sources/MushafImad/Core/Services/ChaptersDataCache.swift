@@ -33,7 +33,7 @@ public final class ChaptersDataCache {
     }
 
     /// Allow tests (using @testable) to override the RealmService on the shared instance
-    func setRealmService(_ service: RealmServiceProtocol) {
+    package func setRealmService(_ service: RealmServiceProtocol) {
         self.realmService = service
     }
     
