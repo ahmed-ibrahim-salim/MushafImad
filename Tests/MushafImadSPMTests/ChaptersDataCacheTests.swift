@@ -70,7 +70,7 @@ struct ChaptersDataCacheTests {
         // Assert
         #expect(chaptersCache.isPartsCached == true)
         #expect(!chaptersCache.allChaptersByPart.isEmpty, "Expected ChaptersByPart not empty, did you forgot to call loadAndCache() first?")
-        #expect(!chaptersCache.allChaptersByPart.first!.chapters.isEmpty)
+        #expect(chaptersCache.allChaptersByPart.first?.chapters.isEmpty == false)
         #expect(chaptersCache.allChaptersByPart.first?.partNumber == part.number)
         #expect(chaptersCache.allChaptersByPart.first?.firstPage == page.number)
     }
