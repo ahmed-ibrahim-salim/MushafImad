@@ -228,7 +228,7 @@ public final class TafseerService {
             }
 
             // Re-open the realm on the main actor after background write
-            realm = try Realm(configuration: configuration)
+            realm = try await Realm(configuration: configuration)
             importState = .ready
 
         } catch {
