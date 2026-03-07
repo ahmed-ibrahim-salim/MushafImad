@@ -8,6 +8,9 @@
 import SwiftUI
 import CoreMotion
 import Combine
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Manages the tilt-to-scroll functionality using CoreMotion.
 @MainActor
@@ -34,7 +37,11 @@ public class TiltScrollManager: ObservableObject {
     
     @AppStorage("tilt_sensitivity") public var sensitivity: Double = 2.5
     
+#if canImport(UIKit)
     private weak var scrollView: UIScrollView?
+#else
+    private var scrollView: Any?
+#endif
     private var scrollAxis: ScrollAxis = .vertical
     private var tiltProfile: TiltProfile = .defaultPaged
     private var textNeutralPitch: Double?
@@ -53,9 +60,15 @@ public class TiltScrollManager: ObservableObject {
         updateMonitoringState()
     }
     
+#if canImport(UIKit)
     public func setScrollView(_ scrollView: UIScrollView) {
         self.scrollView = scrollView
     }
+#else
+    public func setScrollView(_ scrollView: Any) {
+        // no-op
+    }
+#endif
 
     public func setScrollAxis(_ axis: ScrollAxis) {
         scrollAxis = axis
@@ -216,6 +229,7 @@ public class TiltScrollManager: ObservableObject {
     }
     
     private func updateScrollPosition() {
+#if canImport(UIKit)
         guard let scrollView = scrollView else {
             // print("[TiltScrollManager] No ScrollView to scroll")
             return
@@ -254,5 +268,6 @@ public class TiltScrollManager: ObservableObject {
                 scrollView.setContentOffset(CGPoint(x: clampedX, y: newOffset.y), animated: false)
             }
         }
+#endif
     }
 }
