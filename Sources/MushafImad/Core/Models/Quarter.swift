@@ -36,15 +36,19 @@ public final class Quarter: Object {
     }
 }
 
+#if DEBUG
 extension Quarter {
     /// Creates a mock Quarter with associated Chapter, Verse, and Page for testing purposes.
     @MainActor
-    public static func makeMock(chapter: Chapter = .mock,
+    static func makeMock(chapter: Chapter? = nil,
                                 verse: Verse = .mock,
                                 page: Page = .mock) -> Quarter {
-        verse.chapter = chapter
+
+        let resolvedChapter: Chapter = chapter ?? Chapter.makeMockFatiha()
+
+		verse.chapter = resolvedChapter
         verse.page1441 = page
-        chapter.verses.append(verse)
+        resolvedChapter.verses.append(verse)
         
         // Create a Quarter and attach the verse
         let quarter = Quarter()
@@ -57,3 +61,4 @@ extension Quarter {
         return quarter
     }
 }
+#endif

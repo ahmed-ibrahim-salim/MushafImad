@@ -26,16 +26,20 @@ public final class Part: Object {
     }
 }
 
+#if DEBUG
 extension Part {
     /// Create a Part and attach the chapter and verse
     @MainActor
-    public static func makeMock(chapter: Chapter = .mock,
+    static func makeMock(chapter: Chapter? = nil,
                                 verse: Verse = .mock,
                                 page: Page = .mock) -> Part {
+
+		var resolvedChapter: Chapter = chapter ?? Chapter.makeMockFatiha()
+
         // Ensure verse is associated with the chapter and has a page
-        verse.chapter = chapter
+        verse.chapter = resolvedChapter
         verse.page1441 = page
-        chapter.verses.append(verse)
+        resolvedChapter.verses.append(verse)
         
         // Create a Part and attach the chapter and verse
         let part = Part()
@@ -43,8 +47,9 @@ extension Part {
         part.number = 1
         part.arabicTitle = "الجزء الأول"
         part.englishTitle = "Part One"
-        part.chapters.append(chapter)
+        part.chapters.append(resolvedChapter)
         part.verses.append(verse)
         return part
     }
 }
+#endif

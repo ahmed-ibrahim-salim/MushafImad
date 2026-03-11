@@ -68,10 +68,10 @@ public final class Chapter: Object, Identifiable {
     }
 }
 
-
+#if DEBUG
 extension Chapter {
     @MainActor
-    public static var mock: Chapter {
+    static var mock: Chapter {
         if let c = RealmService.shared.getChapter(number: 1) {
             return c
         }
@@ -87,7 +87,7 @@ extension Chapter {
     
     /// Mock Medinan chapter for testing purposes
     @MainActor
-    public static var mockMedinan: Chapter {
+    static var mockMedinan: Chapter {
         let baqarah = Chapter()
         
         baqarah.number = 2
@@ -107,4 +107,15 @@ extension Chapter {
 
         return baqarah
     }
+
+    static func makeMockFatiha() -> Chapter {
+        let fatiha = Chapter()
+        fatiha.number = 1
+        fatiha.arabicTitle = "الفاتحة"
+        fatiha.englishTitle = "Al-Fatihah"
+        fatiha.verses = List<Verse>()
+        fatiha.isMeccan = true
+        return fatiha
+    }
 }
+#endif
